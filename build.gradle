@@ -33,6 +33,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-integration'
     implementation 'org.springframework.integration:spring-integration-core'
     implementation 'org.springframework.integration:spring-integration-ip'
+    implementation 'org.springframework.integration:spring-integration-file'
 }
 
 tasks.named('test') {

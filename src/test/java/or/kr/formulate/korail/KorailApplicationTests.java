@@ -10,4 +10,11 @@ class KorailApplicationTests {
     void contextLoads() {
     }
 
+    @Test
+    void createNewThread() {
+        Runnable runnable = new NewState();
+        Thread t = new Thread(runnable);
+        System.out.println(t.getState());
+    }
+
 }

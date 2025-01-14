@@ -1,4 +1,4 @@
-package or.kr.formulate.korail.service;
+package or.kr.formulate.korail.dummy;
 
 public class NewState implements Runnable {
     @Override

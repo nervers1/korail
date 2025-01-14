@@ -1,14 +1,66 @@
 package or.kr.formulate.korail.dummy;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.Properties;
+import java.util.ResourceBundle;
 
 public class TestTCPClient {
 
     public static void main(String[] args) {
+
+        String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+        System.out.println("rootPath ---> " + rootPath);
+
+        String resource = "test.properties";
+        String ifProperties = "interfaceId.properties";
+
+        String appConfigPath = Thread.currentThread().getContextClassLoader().getResource(resource).getPath();
+        String ifConfigPath = Thread.currentThread().getContextClassLoader().getResource(ifProperties).getPath();
+
+        Properties properties = new Properties();
+        Properties ifProp = new Properties();
+        Properties appProp = new Properties();
+
+        try (
+                InputStream stream = TestTCPClient.class.getClassLoader().getResourceAsStream(resource);
+                FileInputStream fis = new FileInputStream(ifConfigPath);
+                FileInputStream appfis = new FileInputStream(appConfigPath);
+        ) {
+            properties.load(stream);
+            ifProp.load(fis);
+            appProp.load(appfis);
+
+            System.out.println("----------------------[properties]----------------------------------");
+            System.out.println("properties.str1 : " + properties.getProperty("str1"));
+            System.out.println("properties.key1 : " + properties.getProperty("key1"));
+            System.out.println("properties.test.type : " + properties.getProperty("test.type"));
+
+            System.out.println("----------------------[interfaceId.properties]----------------------------------");
+            System.out.println("ifProp.str1 : " + ifProp.getProperty("str1"));
+            System.out.println("ifProp.key1 : " + ifProp.getProperty("key1"));
+            System.out.println("ifProp.test.type : " + ifProp.getProperty("test.type"));
+            System.out.println("----------------------[test.properties]----------------------------------");
+            System.out.println("appProp.str1 : " + appProp.getProperty("str1"));
+            System.out.println("appProp.key1 : " + appProp.getProperty("key1"));
+            System.out.println("appProp.test.type : " + appProp.getProperty("test.type"));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("----------------------[ResourceBundle]----------------------------------");
+        ResourceBundle rb = ResourceBundle.getBundle("test");
+        System.out.println("ResourceBundle.str1 : " + rb.getString("str1"));
+        System.out.println("ResourceBundle.key1 : " + rb.getString("key1"));
+        System.out.println("ResourceBundle.test.type : " + rb.getString("test.type"));
+        System.out.println("--------------------------------------------------------");
+
 
         int length = 20;
         String str = "Hello World";

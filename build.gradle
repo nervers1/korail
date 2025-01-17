@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.springframework.integration:spring-integration-file'
     implementation 'org.springframework.integration:spring-integration-feed'
     implementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    implementation 'org.json:json:20240303'
 }
 
 tasks.named('test') {

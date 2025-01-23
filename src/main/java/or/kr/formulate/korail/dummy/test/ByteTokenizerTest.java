@@ -3,6 +3,8 @@ package or.kr.formulate.korail.dummy.test;
 import or.kr.formulate.korail.util.token.ByteTokenizer;
 import org.junit.jupiter.api.Test;
 
+import java.io.UnsupportedEncodingException;
+
 public class ByteTokenizerTest {
     @Test
     public void test() {
@@ -31,6 +33,24 @@ public class ByteTokenizerTest {
             token = (byte[]) tokenizer.nexToken();
             System.out.println("Byte token: " + getHexDump(token));
         }
+
+
+        System.out.println("-----------------------------------------------");
+        final String testString = "테스트문자@열입니다11212afsga@sdfad1123aㅁㄴㅇ@ㄻㄴㅇㄹ";
+        byte[] testBytes = testString.getBytes();
+        int testlen = testBytes.length;
+        final or.kr.formulate.korail.util.ByteTokenizer tokenizer2;
+        try {
+            tokenizer2 = new or.kr.formulate.korail.util.ByteTokenizer(testBytes, 0, testlen, "@", false,"UTF-8");
+            while(tokenizer2.hasNext()) {
+                String token2 = tokenizer2.next();
+                System.out.println(token2);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("-----------------------------------------------");
     }
 
 

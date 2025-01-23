@@ -1,4 +1,4 @@
-package or.kr.formulate.korail.dummy;
+package or.kr.formulate.korail.dummy.test;
 
 import javax.swing.*;
 

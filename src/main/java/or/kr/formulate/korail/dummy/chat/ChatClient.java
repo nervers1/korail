@@ -2,7 +2,6 @@ package or.kr.formulate.korail.dummy.chat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.json.JSONObject;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,10 +30,11 @@ public class ChatClient {
             try {
                 while (true) {
                     String json = dis.readUTF(); //JSON 수신
-                    JSONObject root = new JSONObject(json);
-                    String clientIp = root.getString("clientIp");
-                    String chatName = root.getString("chatName");
-                    String message = root.getString("message");
+                    ObjectNode obj = (ObjectNode) new ObjectMapper().readTree(json);
+
+                    String clientIp = obj.get("clientIp").asText();
+                    String chatName = obj.get("chatName").asText();
+                    String message = obj.get("message").asText();
                     System.out.println("<" + chatName + "@" + clientIp + "> " + message);
                 }
             } catch (Exception e1) { //서어봐 연결이 끊겼을 시

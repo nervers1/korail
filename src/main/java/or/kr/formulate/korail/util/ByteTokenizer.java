@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * The byte tokenizer class allows an application to break a byte buffer into tokens. This was modified from the
- * java.util.StringTokenizer implementation. Note that all characters in the delimiter set are considered to be
- * characters in the range 0 - 255. In other words the ISO8859-1 encoding is used to match the delimiters to the byte
- * array.
+ * byte tokenizer는 byte buffer를 토큰으로 쪼갠다.
+ * java.util.StringTokenizer 의 구현체를 수정하여 제작하였다.
+ * 딜리미터로 사용된 문자는 0 - 255 범위의 캐릭터 문자로 간주한다.
+ * 딜리미터와 바이트 배열을 매칭시키기 위해 ISO8859-1 encoding이 사용되었다.
  */
 public class ByteTokenizer implements Iterator<String> {
     private int currentPosition;
@@ -27,13 +27,12 @@ public class ByteTokenizer implements Iterator<String> {
     private static final Logger logger = LoggerFactory.getLogger(ByteTokenizer.class);
 
     /**
-     * maxDelimChar stores the value of the delimiter character with the highest value. It is used to optimize the detection
-     * of delimiter characters.
+     * maxDelimChar 딜리미터 문자의 최대 값을 저장한다(delimiter character with the highest value). 이는 딜리미터 문자를 최적화하는데 사용한다..
      */
     private char maxDelimChar;
 
     /**
-     * Set maxDelimChar to the highest char in the delimiter set.
+     * delimiter set에 maxDelimChar를 세팅한다..
      */
     private void setMaxDelimChar() {
         if (delimiters == null) {
@@ -52,18 +51,18 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array. All characters in the <code>delim</code> argument are the
-     * delimiters for separating tokens. Characters must be in the range of 0 - 255.
+     * ByteTokenizer의 생성자 : byte array를 <code>delim</code> argument로 입력받은 딜리미터로 토큰을 나눈다.
+     * 딜리미터에 사용되는 문자는 0 - 255 사이의 문자코드로 이루어 진다..
      * <p>
-     * If the <code>returnDelims</code> flag is <code>true</code>, then the delimiter characters are also returned as
-     * tokens. Each delimiter is returned as a byte[] or String of length one. If the flag is <code>false</code>, the
-     * delimiter characters are skipped and only serve as separators between tokens.
+     * 만일 <code>returnDelims</code> 플래그를 <code>true</code>로 설정하면 delimiter character도 토큰으로 반환된다.
+     * 각 딜리미터는 byte[] 나 해당 길이의 String으로 되어있다.
+     * <code>false</code>로 지정하면 delimiter로 사용된 character들을 제외한 토큰들만 반환된다.
      *
-     * @param bytes        a byte array to be parsed.
-     * @param start        the first byte in the array
-     * @param len          the number of bytes to parse
+     * @param bytes        파싱하는 byte array
+     * @param start        배열의 첫 byte(offset)
+     * @param len          파싱할 바이트 수(length)
      * @param delim        the delimiters.
-     * @param returnDelims flag indicating whether to return the delimiters as tokens.
+     * @param returnDelims 반환되는 토큰에 delimiters가 포함되는지 여부.
      */
     public ByteTokenizer(byte[] bytes, int start, int len, String delim, boolean returnDelims) {
         currentPosition = start;
@@ -77,7 +76,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array using the specified encoding.
+     * byte tokenizer 생성자 : 특정 인코딩을 사용하는 경우
      *
      * @param bytes        a byte array to be parsed.
      * @param start        the first byte in the array
@@ -99,8 +98,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array. The characters in the <code>delim</code> argument are the
-     * delimiters for separating tokens. Delimiter characters themselves will not be treated as tokens.
+     * byte tokenizer 생성자 : Delimiter가 token에서 제외되는 경우.
      *
      * @param bytes a byte array to be parsed.
      * @param start the first byte in the array
@@ -112,7 +110,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array using the specified encoding.
+     * byte tokenizer 생성자 : 특정 인코딩을 사용하는 경우
      *
      * @param bytes    a byte array to be parsed.
      * @param start    the first byte in the array
@@ -126,10 +124,8 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array. The tokenizer uses the default delimiter set, which is
-     * <code>"&nbsp;&#92;t&#92;n&#92;r&#92;f"</code>: the space character, the tab character, the newline character, the
-     * carriage-return character, and the form-feed character. Delimiter characters themselves will not be treated as
-     * tokens.
+     * byte tokenizer 생성자 : 특정 문자 <code>"&nbsp;&#92;t&#92;n&#92;r&#92;f"</code>: 공백문자, 탭, 개행문자,
+     * 캐리지리턴문자, 폼피드문자 가 딜리미터로 사용되는 경우
      *
      * @param bytes a byte array to be parsed.
      * @param start the first byte in the array
@@ -140,12 +136,8 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array. All characters in the <code>delim</code> argument are the
-     * delimiters for separating tokens. Characters must be in the range of 0 - 255.
+     * byte tokenizer 생성자 : 딜리미터 아규먼트가 0 - 255 사이의 문자코드를 가지는 경우.
      * <p>
-     * If the <code>returnDelims</code> flag is <code>true</code>, then the delimiter characters are also returned as
-     * tokens. Each delimiter is returned as a byte[] or String of length one. If the flag is <code>false</code>, the
-     * delimiter characters are skipped and only serve as separators between tokens.
      *
      * @param bytes        a byte array to be parsed.
      * @param delim        the delimiters.
@@ -156,7 +148,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array using the specified encoding.
+     * byte tokenizer 생성자 : 특정 인코딩을 사용하는 경우
      *
      * @param bytes        a byte array to be parsed.
      * @param delim        the delimiters.
@@ -169,8 +161,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array. The characters in the <code>delim</code> argument are the
-     * delimiters for separating tokens. Delimiter characters themselves will not be treated as tokens.
+     * byte tokenizer 생성자 : 특정 딜리미터로 구성된 바이트 배열 전체를 토큰으로 끊어내는 경우
      *
      * @param bytes a byte array to be parsed.
      * @param delim the delimiters.
@@ -180,7 +171,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array using the specified encoding.
+     * byte tokenizer 생성자 : 특정 딜리미터로 구성된 특정 인코딩으로 구성된 바이트 배열 전체를 토큰으로 끊어내는 경우
      *
      * @param bytes    a byte array to be parsed.
      * @param delim    the delimiters.
@@ -192,10 +183,8 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Constructs a byte tokenizer for the specified byte array. The tokenizer uses the default delimiter set, which is
-     * <code>"&nbsp;&#92;t&#92;n&#92;r&#92;f"</code>: the space character, the tab character, the newline character, the
-     * carriage-return character, and the form-feed character. Delimiter characters themselves will not be treated as
-     * tokens.
+     * byte tokenizer 생성자 : 딜리미터로 특정 문자 <code>"&nbsp;&#92;t&#92;n&#92;r&#92;f"</code>: 공백문자, 탭, 개행문자,
+     * 캐리지리턴문자, 폼피드문자 가 딜리미터로 사용되는 경우
      *
      * @param bytes a byte array to be parsed.
      */
@@ -204,9 +193,8 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Skips delimiters starting from the specified position. If retDelims is false, returns the index of the first
-     * non-delimiter character at or after startPos. If retDelims is true, startPos is returned.
-     */
+     * 특정 위치에서부터 시작되는 딜리미터를 Skips 한다.
+     * */
     private int skipDelimiters(int startPos) {
         if (delimiters == null) {
             throw new NullPointerException();
@@ -224,8 +212,7 @@ public class ByteTokenizer implements Iterator<String> {
     }
 
     /**
-     * Skips ahead from startPos and returns the index of the next delimiter character encountered, or maxPosition if no
-     * such delimiter is found.
+     * 시작 위치까지지의 바이트를 스킵하고 이후부터 딜리미터를 탐색하여 발견된 토큰의 시작 index를 반환, 탐색에 시패할 경우 maxPosition를 반환
      */
     private int scanToken(int startPos) {
         int position = startPos;

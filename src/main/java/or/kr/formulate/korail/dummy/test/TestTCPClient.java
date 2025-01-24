@@ -1,6 +1,8 @@
 package or.kr.formulate.korail.dummy.test;
 
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -220,6 +222,7 @@ public class TestTCPClient {
         System.out.println("[" + String.format(format.toString(), testStr) + "]");
         System.out.println("[" + String.format(format.toString(), testNum).replace(' ', '0') + "]");
 
-
+        String replaceRightFillStr = StringUtils.rightPad(testStr, length, strAlign);
+        System.out.println("[" + replaceRightFillStr + "]");
     }
 }

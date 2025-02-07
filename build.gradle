@@ -36,6 +36,7 @@ dependencies {
     implementation 'org.springframework.integration:spring-integration-file'
     implementation 'org.springframework.integration:spring-integration-feed'
     implementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testCompileOnly 'org.junit.jupiter:junit-jupiter-api:5.11.3'
     implementation 'javax.xml.bind:jaxb-api:2.3.1'
     implementation 'commons-codec:commons-codec'
     implementation 'commons-io:commons-io:2.16.1'

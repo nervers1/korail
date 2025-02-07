@@ -5,9 +5,18 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <title>Markdown Test</title>
+    <style type="text/tailwindcss">
+        @theme {
+            --color-clifford: #da373d;
+        }
+    </style>
 </head>
 <body>
+<h1 class="text-3xl font-bold underline text-clifford">
+    Hello world!
+</h1>
 <div th:utext="${contents}">test</div>
 </body>
 </html>

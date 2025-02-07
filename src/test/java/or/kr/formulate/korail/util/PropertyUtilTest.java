@@ -1,7 +1,6 @@
 package or.kr.formulate.korail.util;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,6 @@ import java.util.Map;
 import static or.kr.formulate.korail.util.PropertyUtil.getFieldList;
 import static or.kr.formulate.korail.util.PropertyUtil.getMetaProp;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PropertyUtilTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertyUtilTest.class);
@@ -19,7 +17,7 @@ public class PropertyUtilTest {
     @Test
     public void PropertyUtilTest() {
 
-        // 메타정보위치에서 프로퍼티 파일을 읽어온다 ( test.properties 파일을 읽는 경우 파일명 "test"를 입력한다.
+        // 메타정보위치에서 프로퍼티 파일을 읽어온다 ( resources/meta/test.properties 파일을 읽는 경우 파일명 "test"를 입력한다.
         String path = "test";
         Map<String, Object> info = getMetaProp(path);
         logger.debug("info ---> {}", info);

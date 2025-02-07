@@ -22,9 +22,9 @@ import java.util.concurrent.Executors;
 public class ExecutorExam1 {
     private static final Logger log = LoggerFactory.getLogger(ExecutorExam1.class);
     ExecutorService executorService;
-    int capacity = 1024;
-    int port = 8000;
-    int clientPort = 8080;
+    final int capacity = 1024;
+    final int port = 8000;
+    final int clientPort = 8080;
 
     private void createServer() {
         executorService = Executors.newFixedThreadPool(1);

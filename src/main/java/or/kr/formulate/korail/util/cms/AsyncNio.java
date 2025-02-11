@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AsyncNio {
 
+    private static final int CAPACITY = 4096;
     AsynchronousChannelGroup channelGroup;
     AsynchronousServerSocketChannel asynchronousServerSocketChannel;
 
@@ -56,7 +57,7 @@ public class AsyncNio {
             @Override
             public void completed(AsynchronousSocketChannel channel, Void attachment) {
                 // 버퍼용량
-                ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+                ByteBuffer readBuffer = ByteBuffer.allocate(CAPACITY);
 
                 // 채널로부터 버퍼사이즈만큼 데이터를 읽는다.
                 channel.read(readBuffer, 60, TimeUnit.SECONDS, attachment, channelReadHandler(readBuffer, channel));
@@ -79,7 +80,7 @@ public class AsyncNio {
             @Override
             public void completed(Integer result, Void attachment) {
                 // 버퍼용량
-                ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+                ByteBuffer byteBuffer = ByteBuffer.allocate(CAPACITY);
 
                 try {
                     // biz ....
@@ -113,7 +114,7 @@ public class AsyncNio {
                     boolean condition = false;
                     if (false) {
                         System.out.println("error!");
-                        throw new IOException("썅!");
+                        throw new IOException("워워~!");
                     }
                 } catch (IOException e) {
                     //

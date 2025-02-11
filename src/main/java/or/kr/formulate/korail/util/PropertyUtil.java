@@ -12,10 +12,6 @@ public class PropertyUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertyUtil.class);
 
-    public static List<Map<String, Object>> getFieldList(Map<String, Object> info, String key) {
-        return (List<Map<String, Object>>) ((Map<String, Object>) info.get(key)).get("fields");
-    }
-
     public static Map<String, Object> getMetaProp(String propName) {
         String path = "meta/" + propName + ".properties";
         String propPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path)).getPath();
@@ -104,6 +100,10 @@ public class PropertyUtil {
         });
 
         return ifMap;
+    }
+
+    public static List<Map<String, Object>> getFieldList(Map<String, Object> info, String key) {
+        return (List<Map<String, Object>>) ((Map<String, Object>) info.get(key)).get("fields");
     }
 
 

@@ -19,4 +19,7 @@ public class CommonUtil {
 
         return stringBuilder.toString();
     }
+
+    // 0600 전문 생성
+
 }

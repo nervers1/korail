@@ -4,8 +4,5 @@ public class FixedFormatException extends Exception {
     public FixedFormatException(String message) {
         super(message);
     }
-
-    public FixedFormatException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    public FixedFormatException(String message, Throwable cause) {super(message, cause);}
 }

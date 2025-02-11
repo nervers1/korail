@@ -154,7 +154,7 @@ public class StringUtil {
     // 인코딩 형식에 따른 전문 숫자 세팅
     public static String setNumber(String str, int len, String characterSet) {
         str = checkLength(str, len, characterSet);
-        StringBuffer sb = new StringBuffer(str);
+        StringBuffer sb = new StringBuffer();
         if ("utf-8".equalsIgnoreCase(characterSet) || "utf8".equalsIgnoreCase(characterSet)) {
             while (sb.length() < len - str.getBytes(StandardCharsets.UTF_8).length) {
                 sb.append('0');

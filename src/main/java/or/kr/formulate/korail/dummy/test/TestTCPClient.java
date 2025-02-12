@@ -49,7 +49,7 @@ public class TestTCPClient {
             System.out.println("ifProp.str1 : " + ifProp.getProperty("str1"));
             System.out.println("ifProp.key1 : " + ifProp.getProperty("key1"));
             System.out.println("ifProp.test.type : " + ifProp.getProperty("test.type"));
-            System.out.println("----------------------[test.properties]----------------------------------");
+            System.out.println("----------------------[cms.properties]----------------------------------");
             System.out.println("appProp.str1 : " + appProp.getProperty("str1"));
             System.out.println("appProp.key1 : " + appProp.getProperty("key1"));
             System.out.println("appProp.test.type : " + appProp.getProperty("test.type"));

@@ -83,6 +83,7 @@ public class PropertyUtil {
         ifMap.forEach((ifKey, ifValue) -> {
 
             List<Map<String, Object>> temp = new ArrayList<>();
+            //noinspection unchecked
             Map<String, Object> ifItem = (Map<String, Object>) ifValue;
 
             fields.forEach(field -> {

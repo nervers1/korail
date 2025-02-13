@@ -1,85 +1,49 @@
-package or.kr.formulate.korail.dummy.timeout;
+package or.kr.formulate.korail.util.cms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TimeoutExam<T> {
-    private static final Logger logger = LoggerFactory.getLogger(TimeoutExam.class);
-
-    private final T task;
-    private static final int maxCore = Runtime.getRuntime().availableProcessors();
-    private static final int timeout = 5_000;
-    private TimeUnit unit = TimeUnit.MILLISECONDS;
+public class CmsProcess<T> {
+    private static final Logger logger = LoggerFactory.getLogger(CmsProcess.class);
     private ExecutorService executor;
+    private final T task;
+    private static final int timeout = 30;
+    private static TimeUnit unit = TimeUnit.SECONDS;
     private final AtomicInteger retryCount = new AtomicInteger(0);
-    private final List<Future<?>> response = new ArrayList<>();
 
-    public TimeoutExam(T t) {
+    public CmsProcess(T t) {
         this.task = t;
     }
 
-    public void invoke() {
-        logger.info("Max cores : {}", maxCore);
+    private void accept() {
+        try (ServerSocket serverSocket = new ServerSocket(9577)) {
+            System.out.println("Proxy server listening on port 9577...");
 
-        createServer();
+            while (true) {
+                Socket clientSocket = serverSocket.accept(); // 클라이언트 연결 대기
+                //executor.submit(() -> handleClient(clientSocket)); // 요청 처리
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        executeTask(task);
-
-        getResponse(task);
-
-        shutdownServer();
     }
 
+    private void createServer(int threadCount) {
 
-
-    private void createServer() {
-
-        executor = Executors.newFixedThreadPool(5);
+        executor = Executors.newFixedThreadPool(threadCount);
         // Callable Task로 지정된 클래스(: 리턴값 있는 경우) 수행
         logger.info("ExecutorService started... ");
+        logger.info("Thread count... [{}]", threadCount);
     }
-
-    private void executeTask(T task) {
-        if (task instanceof Callable) {
-            Future<?> result = executor.submit((Callable) task);
-            response.add(result);
-        } else if (task instanceof Runnable) {
-            executor.execute((Runnable) task);
-        }
-    }
-
-    private void getResponse(T t) {
-        logger.info("checkResponse - received count {}",response.size());
-        if (!response.isEmpty()) {
-            response.forEach(future -> {
-                try {
-                    extractData(future);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } catch (TimeoutException e) {
-                    logger.warn("TimeoutException!",e);
-                    if (getRetryCount() < 3) {
-                        increaseRetryCount();
-                        logger.info("Retry count : {}", getRetryCount());
-                        executeTask(t);
-                        getResponse(t);
-                    } else {
-                        logger.info("else Retry count : {}", getRetryCount());
-                        shutdownServer();
-                    }
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-    }
-
 
     private void shutdownServer() {
         executor.shutdown();
@@ -94,6 +58,7 @@ public class TimeoutExam<T> {
         }
     }
 
+
     private int getRetryCount() {
         return retryCount.get();
     }
@@ -107,6 +72,7 @@ public class TimeoutExam<T> {
             }
         }
     }
+
 
     private <R> void extractData(final Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
         if (future.get(timeout, unit) instanceof String) extractStringData(future);
@@ -134,8 +100,8 @@ public class TimeoutExam<T> {
             List<?> list = (List<?>)future.get(timeout, unit);
             list.forEach(item -> {
                 if (item instanceof Map) {
-                    ((Map) item).keySet().forEach(key -> {
-                        logger.info("{} --> {}", key, item.toString());
+                    ((Map) item).forEach((k, v) -> {
+                        logger.info("{} --> {}", k, v.toString());
                     });
                 } else if (item instanceof String) {
                     logger.info("{}", item);
@@ -143,6 +109,4 @@ public class TimeoutExam<T> {
             });
         }
     }
-
-
 }

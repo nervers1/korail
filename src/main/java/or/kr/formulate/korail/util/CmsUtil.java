@@ -3,16 +3,79 @@ package or.kr.formulate.korail.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.BiFunction;
+import java.util.stream.IntStream;
 
 public class CmsUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(CmsUtil.class);
 
     private Map<String, Object> meta;
+
+    /**
+     * 필드정보가 들어있는 맵을 입력받아 각 필드값을 문자셋에 맞는 byte[]로 치환하여 리스트로 반환
+     * @param dataList 필드정보 리스트
+     * @param charset 문자셋("UTF-8", "UTF-8", "EUC-KR", "ISO8859-1"
+     * @return
+     */
+    public static List<byte[]> getBytesList(List<Map<String, Object>> dataList, String charset) {
+        List<byte[]> result = new ArrayList<>();
+        for (Map<String, Object> map : dataList) {
+            map.forEach((key, value) -> {
+                String dataValue = (String) value;
+                if ("UTF8".equalsIgnoreCase(charset)  || "UTF-8".equalsIgnoreCase(charset)) {
+                    byte[] dataByte = dataValue.getBytes(StandardCharsets.UTF_8);
+                    result.add(dataByte);
+                } else {
+                    try {
+                        byte[] dataByte = dataValue.getBytes(charset);
+                        result.add(dataByte);
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
+
+        return result;
+    }
+
+    /**
+     * 바이트 리스트를 하나의 바이트로 합쳐서 반환
+     * @param bytesList 바이트배열의 리스트
+     * @return 리스트의 각 요소의 바이트를 합친 하나의 바이트
+     */
+    public static byte[] getTotalBytes(List<byte[]> bytesList) {
+        byte[] result = new byte[0];
+        BiFunction<byte[], byte[], byte[]> add = (b1, b2) -> {
+            byte[] sum = new byte[b1.length + b2.length];
+            System.arraycopy(b1, 0, sum, 0, b1.length);
+            System.arraycopy(b2, 0, sum, b1.length, b2.length);
+            return sum;
+        };
+
+        int size = bytesList.size();
+        for (int i = 0; i < size; i++) {
+            if (i == 0) {
+                bytesList.add(bytesList.get(0));
+            } else {
+                byte[] res = bytesList.get(size);
+                res = add.apply(bytesList.get(size), bytesList.get(i));
+            }
+        }
+        byte[] totalBytes = bytesList.get(size);
+        bytesList.remove(totalBytes);
+
+        return totalBytes;
+    }
 
     public static byte[] make0600(Map<String, String> map, String type) {
         Map<String, String> msgMap = test0600();

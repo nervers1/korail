@@ -4,14 +4,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CmsProcess<T> {
+public class CmsProcess<T extends Runnable> {
     private static final Logger logger = LoggerFactory.getLogger(CmsProcess.class);
     private ExecutorService executor;
     private final T task;
@@ -23,9 +29,103 @@ public class CmsProcess<T> {
         this.task = t;
     }
 
+
+    private void cmsServer() {
+
+        ServerSocketChannel serverSocketChannel = null;
+
+        try {
+            serverSocketChannel = ServerSocketChannel.open();
+            serverSocketChannel.configureBlocking(false);
+            serverSocketChannel.bind(new InetSocketAddress(5001));
+
+            while (true) {
+
+                System.out.println("[연결 기다림]");
+                SocketChannel socketChannel = serverSocketChannel.accept();
+                InetSocketAddress isa = (InetSocketAddress) socketChannel.getRemoteAddress();
+                System.out.println("[연결 수락함] " + isa.getHostName());
+
+                ByteBuffer byteBuffer = null;
+//                Charset charset = Charset.forName("UTF-8");
+                Charset charset = StandardCharsets.UTF_8;
+
+                byteBuffer = ByteBuffer.allocate(100);
+                int byteCount = socketChannel.read(byteBuffer);
+                byteBuffer.flip();
+                String message = charset.decode(byteBuffer).toString();
+                System.out.println("[데이터 받기 성공]: " + message);
+
+                byteBuffer = charset.encode("Hello Client");
+                socketChannel.write(byteBuffer);
+                System.out.println("[데이터 보내기 성공]");
+
+            }
+        } catch (Exception e) {
+            //
+        }
+
+        if (serverSocketChannel.isOpen()) {
+            try {
+                serverSocketChannel.close();
+            } catch (IOException e1) {
+                //
+            }
+        }
+
+    }
+
+    public void invoke() {
+
+        createServer(5);
+        logger.info("Starting process");
+
+        /*Callable<String> cms = () -> {
+            logger.info("CmsProcess started");
+            return "Hello World!";
+        };
+
+        Runnable runnableTask = () -> {
+            logger.info("Runnable task started");
+        };*/
+        Runnable cmsServer = this::cmsServer;
+        CompletableFuture<Void> future = CompletableFuture.runAsync(cmsServer);
+
+//        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+//            logger.info("CompletableFuture started");
+//            return "Hello World!";
+//        }, executor);
+
+//        future.thenAccept(res  -> {
+//            logger.info("result: {}", res);
+//        });
+//        CmsServer1 svr = new CmsServer1();
+//        CmsClient1 client = new CmsClient1();
+//        CompletableFuture<Void> future1 = CompletableFuture.runAsync(svr, executor);
+
+
+
+//
+//
+//        createServer(5);
+//        Future<String> response = executor.submit(cms);
+//        String s = null;
+//        try {
+//            s = response.get();
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        } catch (ExecutionException e) {
+//            throw new RuntimeException(e);
+//        }
+//        logger.info("response: {}", s);
+//
+//        executor.execute(task);
+
+        shutdownServer();
+    }
     private void accept() {
-        try (ServerSocket serverSocket = new ServerSocket(9577)) {
-            System.out.println("Proxy server listening on port 9577...");
+        try (ServerSocket serverSocket = new ServerSocket(5001)) {
+            System.out.println("Proxy server listening on port 5001...");
 
             while (true) {
                 Socket clientSocket = serverSocket.accept(); // 클라이언트 연결 대기
@@ -108,5 +208,17 @@ public class CmsProcess<T> {
                 }
             });
         }
+    }
+    // <Future>를 <CompletableFuture>로 변환
+    static <T> CompletableFuture<T> toCompletableFuture(Future<T> future, ExecutorService executor) {
+        CompletableFuture<T> completableFuture = new CompletableFuture<>();
+        executor.submit(() -> {
+            try {
+                completableFuture.complete(future.get());
+            } catch (Exception e) {
+                completableFuture.completeExceptionally(e);
+            }
+        });
+        return completableFuture;
     }
 }

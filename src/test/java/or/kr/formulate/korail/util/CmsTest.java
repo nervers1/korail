@@ -21,7 +21,7 @@ public class CmsTest {
 
     @Test
     public void test() {
-        Map<String, String> dataMap = CmsUtil.test0600();
+        Map<String, Object> dataMap = CmsUtil.test0600();
         CmsUtil.make0600(dataMap, "0600");
     }
 
@@ -45,10 +45,11 @@ public class CmsTest {
         String result2 = future.get(timeout, timeUnit); // 타임아웃 적용
         logger.info("result2: {}", result2);
 
-
-
     }
 
+    /**
+     * Map에 여러 개로 나뉘어 있는 바이틀 하나로 합쳐서 전문을 생성한다.
+     */
     @Test
     public void byteSummary() {
         String test1 = "Hello World";
@@ -57,11 +58,22 @@ public class CmsTest {
         Map<String, Object> map = new HashMap<>();
         map.put("test1", test1);
         map.put("test2", test2);
+        map.put("test3", "Test intended!");
+
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(map);
         List<byte[]> bytesList = CmsUtil.getBytesList(list, "UTF-8");
         logger.info("bytesList: {}", bytesList);
         byte[] totalBytes = CmsUtil.getTotalBytes(bytesList);
         logger.info("totalBytes: [{}]", new String(totalBytes));
+
+        List<Map<String, Object>> listTemp = new ArrayList<>();
+        listTemp.add(CmsUtil.test0600());
+
+        List<byte[]> bytesList1 = CmsUtil.getBytesList(listTemp, "utf-8");
+
+        byte[] tx0600 = CmsUtil.getTotalBytes(bytesList1);
+
+        logger.info("tx0600: [{}]", new String(tx0600));
     }
 }

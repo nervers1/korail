@@ -63,22 +63,19 @@ public class CmsUtil {
         };
 
         int size = bytesList.size();
+        byte[] temp = new byte[0];
         for (int i = 0; i < size; i++) {
             if (i == 0) {
-                bytesList.add(bytesList.get(0));
+                temp = add.apply(new byte[0], bytesList.get(i));
             } else {
-                byte[] res = bytesList.get(size);
-                res = add.apply(bytesList.get(size), bytesList.get(i));
+                temp = add.apply(temp, bytesList.get(i));
             }
         }
-        byte[] totalBytes = bytesList.get(size);
-        bytesList.remove(totalBytes);
-
-        return totalBytes;
+        return temp;
     }
 
-    public static byte[] make0600(Map<String, String> map, String type) {
-        Map<String, String> msgMap = test0600();
+    public static byte[] make0600(Map<String, Object> map, String type) {
+        Map<String, Object> msgMap = test0600();
         Map<String, Object> layout = PropertyUtil.getMetaProp("cms");
         List<Map<String, Object>> fields = PropertyUtil.getFieldList(layout, "IF0600");
         fields.forEach(f -> {
@@ -90,9 +87,8 @@ public class CmsUtil {
         return null;
     }
 
-    public static Map<String, String> test0600() {
-        int byteLength = 0;
-        Map<String, String> info = new ConcurrentHashMap<>();
+    public static Map<String, Object> test0600() {
+        Map<String, Object> info = new ConcurrentHashMap<>();
         info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
         info.put("workDivCd", "FTE");             // 업무구분코드, 기관과 도로공사간("FTE")
         info.put("orgCd", "10100110");            // 기관코드(국민은행)

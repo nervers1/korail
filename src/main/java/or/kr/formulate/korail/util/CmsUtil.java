@@ -3,16 +3,13 @@ package or.kr.formulate.korail.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.BiFunction;
-import java.util.stream.IntStream;
 
 public class CmsUtil {
 
@@ -88,7 +85,7 @@ public class CmsUtil {
     }
 
     public static Map<String, Object> test0600() {
-        Map<String, Object> info = new ConcurrentHashMap<>();
+        Map<String, Object> info = new LinkedHashMap<>();
         info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
         info.put("workDivCd", "FTE");             // 업무구분코드, 기관과 도로공사간("FTE")
         info.put("orgCd", "10100110");            // 기관코드(국민은행)

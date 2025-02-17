@@ -80,16 +80,15 @@ public class CmsProcess<T extends Runnable> {
         createServer(5);
         logger.info("Starting process");
 
-        /*Callable<String> cms = () -> {
-            logger.info("CmsProcess started");
-            return "Hello World!";
-        };
+        CompletableFuture<Void> future = CompletableFuture.runAsync(this::cmsServer, executor);
 
-        Runnable runnableTask = () -> {
-            logger.info("Runnable task started");
-        };*/
-        Runnable cmsServer = this::cmsServer;
-        CompletableFuture<Void> future = CompletableFuture.runAsync(cmsServer);
+        try {
+            future.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
 //        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
 //            logger.info("CompletableFuture started");
@@ -121,7 +120,7 @@ public class CmsProcess<T extends Runnable> {
 //
 //        executor.execute(task);
 
-        shutdownServer();
+//        shutdownServer();
     }
     private void accept() {
         try (ServerSocket serverSocket = new ServerSocket(5001)) {

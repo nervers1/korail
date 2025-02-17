@@ -1,15 +1,15 @@
 package or.kr.formulate.korail.util;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBuf;
 import or.kr.formulate.korail.util.cms.CmsProcess;
 import or.kr.formulate.korail.util.cms.CmsServer1;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -26,11 +26,13 @@ public class CmsTest {
     }
 
 
+
     @Test
     public void connect() {
         CmsServer1 server = new CmsServer1();
         CmsProcess<CmsServer1> exam = new CmsProcess<>(server);
         exam.invoke();
+
     }
 
     @Test
@@ -55,7 +57,7 @@ public class CmsTest {
         String test1 = "Hello World";
         String test2 = "I am Fine";
 
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = Collections.synchronizedMap(new LinkedHashMap<>()) ;
         map.put("test1", test1);
         map.put("test2", test2);
         map.put("test3", "Test intended!");
@@ -75,5 +77,6 @@ public class CmsTest {
         byte[] tx0600 = CmsUtil.getTotalBytes(bytesList1);
 
         logger.info("tx0600: [{}]", new String(tx0600));
+
     }
 }

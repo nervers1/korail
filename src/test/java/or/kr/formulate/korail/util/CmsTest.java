@@ -2,6 +2,8 @@ package or.kr.formulate.korail.util;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
+import or.kr.formulate.korail.exception.EAIException;
+import or.kr.formulate.korail.util.cms.CmsExecutor;
 import or.kr.formulate.korail.util.cms.CmsProcess;
 import or.kr.formulate.korail.util.cms.CmsServer1;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -77,6 +80,18 @@ public class CmsTest {
         byte[] tx0600 = CmsUtil.getTotalBytes(bytesList1);
 
         logger.info("tx0600: [{}]", new String(tx0600));
+
+    }
+
+
+    @Test
+    public void executeServer() throws IOException {
+        try {
+
+            CmsExecutor.server("localhost", 9999);
+        } catch (EAIException e) {
+            logger.info("msg : {} : code: {}", e.getMessage(), e.getCode());
+        }
 
     }
 }

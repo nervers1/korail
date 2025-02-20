@@ -13,7 +13,7 @@ public class PropertyUtil {
     private static final Logger logger = LoggerFactory.getLogger(PropertyUtil.class);
 
     public static Map<String, Object> getMetaProp(String propName) {
-        String path = "meta/" + propName + ".properties";
+        String path = "props/meta/" + propName + ".properties";
         String propPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path)).getPath();
         logger.debug("프로퍼티 경로 ---> {}", propPath);
 
@@ -105,6 +105,19 @@ public class PropertyUtil {
 
     public static List<Map<String, Object>> getFieldList(Map<String, Object> info, String key) {
         return (List<Map<String, Object>>) ((Map<String, Object>) info.get(key)).get("fields");
+    }
+
+    public static Properties getInterfaceProp(String propName) {
+        String path = "props/interface/" + propName + ".properties";
+        String propPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(path)).getPath();
+        final Properties prop = new Properties();
+        // 프로퍼티 파일을 읽는다
+        try (FileInputStream stream = new FileInputStream(propPath)) {
+            prop.load(stream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return prop;
     }
 
 

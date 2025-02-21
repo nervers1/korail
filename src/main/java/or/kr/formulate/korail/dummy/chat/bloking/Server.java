@@ -4,8 +4,7 @@ import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -86,19 +85,26 @@ class ClientThread extends Thread {
     public void run() {
         final int bytesLen = Integer.parseInt(prop.getProperty("Server.BYTES"));
         final String encoding = prop.getProperty("Server.ENCODING");
-        try {
+        try (InputStream is = socket.getInputStream();
+             ObjectInputStream ois = new ObjectInputStream(is)) {
             while (true) {
+                byte[] dataBytes = (byte[])ois.readObject();
+                int length = dataBytes.length;
+
+                String data = new String(dataBytes, encoding);
+                logger.debug("Thread {} length: {}>  {}", id, length, data);
+                /*
                 InputStream IS = socket.getInputStream();
                 byte[] bt = new byte[bytesLen];
                 int size = IS.read(bt);
 
                 String output = new String(bt, 0, size, encoding);
-                logger.debug("Thread {} >  {}", id, output);
-//                System.out.println("Thread " + id + " >  " + output);
+                logger.debug("Thread {} >  {}", id, output);*/
             }
         } catch (IOException e) {
             logger.debug("Thread {} is closed. ", id);
-//            System.out.println("    Thread " + id + " is closed. ");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }

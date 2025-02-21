@@ -1,14 +1,15 @@
 package or.kr.formulate.korail.util;
 
+import or.kr.formulate.korail.code.ResponseCode;
+import or.kr.formulate.korail.exception.EAIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 public class CmsUtil {
@@ -19,8 +20,9 @@ public class CmsUtil {
 
     /**
      * 필드정보가 들어있는 맵을 입력받아 각 필드값을 문자셋에 맞는 byte[]로 치환하여 리스트로 반환
+     *
      * @param dataList 필드정보 리스트
-     * @param charset 문자셋("UTF-8", "UTF-8", "EUC-KR", "ISO8859-1"
+     * @param charset  문자셋("UTF-8", "UTF-8", "EUC-KR", "ISO8859-1"
      * @return
      */
     public static List<byte[]> getBytesList(List<Map<String, Object>> dataList, String charset) {
@@ -28,7 +30,7 @@ public class CmsUtil {
         for (Map<String, Object> map : dataList) {
             map.forEach((key, value) -> {
                 String dataValue = (String) value;
-                if ("UTF8".equalsIgnoreCase(charset)  || "UTF-8".equalsIgnoreCase(charset)) {
+                if ("UTF8".equalsIgnoreCase(charset) || "UTF-8".equalsIgnoreCase(charset)) {
                     byte[] dataByte = dataValue.getBytes(StandardCharsets.UTF_8);
                     result.add(dataByte);
                 } else {
@@ -47,6 +49,7 @@ public class CmsUtil {
 
     /**
      * 바이트 리스트를 하나의 바이트로 합쳐서 반환
+     *
      * @param bytesList 바이트배열의 리스트
      * @return 리스트의 각 요소의 바이트를 합친 하나의 바이트
      */
@@ -76,17 +79,17 @@ public class CmsUtil {
         Map<String, Object> layout = PropertyUtil.getMetaProp("cms");
         List<Map<String, Object>> fields = PropertyUtil.getFieldList(layout, "IF0600");
         fields.forEach(f -> {
-           Map<String, Object> field = f;
-           logger.debug("{}", field);
-           int idx = (int)field.get("idx");
+            Map<String, Object> field = f;
+            logger.debug("{}", field);
+            int idx = (int) field.get("idx");
         });
 
         return null;
     }
 
     public static Map<String, Object> test0600() {
-        Map<String, Object> info = new LinkedHashMap<>();
-        info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
+        Map<String, Object> info = new LinkedHashMap<>(); // 입력 순서를 보장하기 위해 LinkedHashMap 사용
+//        info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
         info.put("workDivCd", "FTE");             // 업무구분코드, 기관과 도로공사간("FTE")
         info.put("orgCd", "10100110");            // 기관코드(국민은행)
         info.put("msgKindCd", "0600");            // 전문종별코드 "0600"
@@ -94,12 +97,74 @@ public class CmsUtil {
         info.put("txFlag", "E");                  // 송수신Flag: 도로공사 전문 발생: 'C', 기관에서 전문 발생: 'E'
         info.put("fileNm", "   ");                // 파일명: 0600/001, 0600/004 전문은 SPACE 처리한다.
         info.put("responseCd", "000");            // 응답코드: 전문처리결과, 요구전문에는 "000" Set
-        info.put("txDateTime","0211163412");      // 전문전송일시: 10자리 (MMDDhhmmss)
+        info.put("txDateTime", "0211163412");      // 전문전송일시: 10자리 (MMDDhhmmss)
         info.put("mngCd", "001");                 // 업무관리정보: 업무개시(001), 파일송수신완료(002,송신할파일존재), 파일송수신완료(003, 송신할 파일없음), 업무종료(004)
         info.put("senderNm", "김병기");            // 송신자명
         info.put("senderEnc", "1111");            // 송신자암호
 
         return info;
 
+    }
+
+
+    // 요청 전문을 생성한다.
+    public static String makeMessage(String interfaceId, Map<String, Object> data) {
+        final Properties prop = PropertyUtil.getInterfaceProp("cms");
+        final String encoding = prop.getProperty("Server.ENCODING");
+        Map<String, Object> cms = PropertyUtil.getMetaProp("cms");
+        List<Map<String, Object>> fields = PropertyUtil.getFieldList(cms, interfaceId);
+        StringBuffer sb = new StringBuffer();
+
+
+        logger.debug(cms.toString());
+        AtomicInteger totalBytes = new AtomicInteger();
+        AtomicReference<Map<String, Object>> lenField = new AtomicReference<>();
+        fields.forEach(field -> {
+            String type = (String) field.get("type");
+            int len = (int) field.get("length");
+            String key = (String) field.get("name");
+            logger.debug("type: {}, len: {}, key: {}", type, len, key);
+
+            String fieldValue;
+            byte[] fieldBytes;
+            if (key != null && !key.isEmpty() && "length".equals(key)) {
+                logger.debug("길이 필드 정보를 저장한다 {}", field);
+                // 길이 필드 정보를 저장한다.
+                lenField.set(field);
+            } else if (key != null && !key.isEmpty() && !"length".equals(key)) {
+                try {
+                    if (type.equals("S")) {
+                        fieldValue = StringUtil.setString((String) data.get(key), len, encoding);
+                        logger.debug("data : [{}] --> value : [{}]", data.get(key), fieldValue);
+                        fieldBytes = fieldValue.getBytes(encoding);
+                    } else if (type.equals("N")) {
+                        fieldValue = StringUtil.setNumber((String) data.get(key), len, encoding);
+                        logger.debug("data : [{}] --> value : [{}]", data.get(key), fieldValue);
+                        fieldBytes = fieldValue.getBytes(encoding);
+                    } else if (type.equals("B")) {
+                        fieldBytes = (byte[]) data.get(key);
+                        fieldValue = new String(fieldBytes);
+                    } else {
+                        // Error!
+                        throw new EAIException(ResponseCode.RES_800.getDesc(), ResponseCode.RES_800);
+                    }
+                    totalBytes.addAndGet(fieldBytes.length);
+                    sb.append(fieldValue);
+                } catch (UnsupportedEncodingException e) {
+                    // Error!
+                    throw new EAIException(ResponseCode.RES_800.getDesc(), ResponseCode.RES_800);
+                }
+
+            }
+
+        });
+        // 전체 데이터 바이트 수
+        int total = totalBytes.get();
+        Map<String, Object> lenFieldMap = lenField.get();
+        int len = (int) lenFieldMap.get("length");
+        String lengthField = StringUtil.setNumber(String.valueOf(total), len, encoding);
+        logger.debug("Total bytes: {}", total);
+        sb.insert(0, lengthField);
+        return sb.toString();
     }
 }

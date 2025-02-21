@@ -85,6 +85,8 @@ class ClientThread extends Thread {
     public void run() {
         final int bytesLen = Integer.parseInt(prop.getProperty("Server.BYTES"));
         final String encoding = prop.getProperty("Server.ENCODING");
+
+/*
         try (InputStream is = socket.getInputStream();
              ObjectInputStream ois = new ObjectInputStream(is)) {
             while (true) {
@@ -93,13 +95,38 @@ class ClientThread extends Thread {
 
                 String data = new String(dataBytes, encoding);
                 logger.debug("Thread {} length: {}>  {}", id, length, data);
-                /*
+                *//*
                 InputStream IS = socket.getInputStream();
                 byte[] bt = new byte[bytesLen];
                 int size = IS.read(bt);
 
                 String output = new String(bt, 0, size, encoding);
-                logger.debug("Thread {} >  {}", id, output);*/
+                logger.debug("Thread {} >  {}", id, output);*//*
+            }*/
+        try (InputStream is = socket.getInputStream();
+             ObjectInputStream ois = new ObjectInputStream(is);
+             OutputStream os = socket.getOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(os)) {
+
+            while (true) {
+                byte[] data = (byte[])ois.readObject();
+                int length = data.length;
+
+                String dataStr = new String(data, encoding);
+                logger.debug("Thread {} length: {}>  {}", id, length, dataStr);
+
+                // 읽은 데이터 파싱
+                final byte[] buffer = new byte[4];
+                System.arraycopy(data, 0, buffer, 0, buffer.length);
+                logger.debug("Thread {} buffer: {}", id, new String(buffer));
+
+
+                InputStream IS = socket.getInputStream();
+                byte[] bt = new byte[bytesLen];
+                int size = IS.read(bt);
+
+                String output = new String(bt, 0, size, encoding);
+                logger.debug("Thread {} >  {}", id, output);
             }
         } catch (IOException e) {
             logger.debug("Thread {} is closed. ", id);

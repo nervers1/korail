@@ -1,10 +1,17 @@
 package or.kr.formulate.korail.dummy.chat.pool2;
 
-import java.io.*;
-import java.net.*;
-import java.util.concurrent.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
     private ServerSocket serverSocket;

@@ -94,7 +94,14 @@ public class Server {
     public void stopServer() {
         try {
             if (executorService != null && !executorService.isShutdown()) {
-                executorService.shutdown();
+                executorService.shutdown(); // 새로운 작업 제출을 막음
+                try {
+                    if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                        executorService.shutdownNow(); // 실행 중인 작업을 중단시킴
+                    }
+                } catch (InterruptedException e) {
+                    executorService.shutdownNow();
+                }
             }
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();

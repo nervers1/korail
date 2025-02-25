@@ -1,6 +1,7 @@
-package or.kr.formulate.korail.dummy.chat.pool2;
+package or.kr.formulate.korail.util.cms.pool2;
 
 
+import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,14 +10,20 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
+    private static final Logger logger = LoggerFactory.getLogger(Server.class);
+    private static final Properties prop = PropertyUtil.getInterfaceProp("cms");
+    final String encoding = prop.getProperty("Server.ENCODING");
     private ServerSocket serverSocket;
     private ExecutorService executorService;
-    private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
     // 서버 시작 메소드
     public void startServer(int port, int threadPoolSize) {
@@ -53,12 +60,17 @@ public class Server {
 
             // 데이터 수신
             byte[] receivedData = receiveData(dis);
-            String message = new String(receivedData, "UTF-8");
+            String message = new String(receivedData, encoding);
             logger.debug("클라이언트로부터 받은 메시지: {}", message);
+
+            // 수신 데이터 파싱(수신 데이터를 파싱해서 응답 전문을 생성하고 byte[] 형태로 반환
+            byte[] result = parseRequest(receivedData);
+
+            // 응답데이터 생성
 
             // 데이터 송신
             String response = "서버에서 보내는 응답입니다.";
-            byte[] sendData = response.getBytes("UTF-8");
+            byte[] sendData = response.getBytes(encoding);
             sendData(dos, sendData);
             logger.debug("클라이언트에게 응답을 보냈습니다.");
 
@@ -68,6 +80,14 @@ public class Server {
             // 스트림 및 소켓 닫기
             closeResources(dis, dos, socket);
         }
+    }
+
+    private byte[] parseRequest(byte[] receivedData) {
+        // 입력데이터 파싱로직
+        Map<String, String> requestMap = new LinkedHashMap<>();
+        // 응답전문 매핑 및 응답전문 생성
+        byte[] result = new byte[receivedData.length];
+        return result;
     }
 
     // 데이터 송신 메소드

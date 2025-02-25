@@ -1,24 +1,10 @@
-package or.kr.formulate.korail.util.cms;
+package or.kr.formulate.korail.dummy.exam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * CMS Client : CMS 파일 전송을 위해 파일을 읽어 CMS 서버로 송신한다.

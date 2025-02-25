@@ -1,15 +1,12 @@
 package or.kr.formulate.korail.util;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
 import or.kr.formulate.korail.exception.EAIException;
-import or.kr.formulate.korail.util.cms.CmsExecutor;
-import or.kr.formulate.korail.util.cms.CmsProcess;
-import or.kr.formulate.korail.util.cms.CmsServer1;
+import or.kr.formulate.korail.dummy.exam.CmsExecutor;
+import or.kr.formulate.korail.dummy.exam.CmsProcess;
+import or.kr.formulate.korail.dummy.exam.CmsServer1;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.LinkedCaseInsensitiveMap;
 
 import java.io.IOException;
 import java.util.*;

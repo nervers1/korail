@@ -1,4 +1,4 @@
-package or.kr.formulate.korail.util.cms;
+package or.kr.formulate.korail.dummy.exam;
 
 import or.kr.formulate.korail.code.ResponseCode;
 import or.kr.formulate.korail.exception.EAIException;

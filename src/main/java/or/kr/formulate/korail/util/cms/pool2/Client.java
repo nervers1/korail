@@ -1,5 +1,6 @@
-package or.kr.formulate.korail.dummy.chat.pool2;
+package or.kr.formulate.korail.util.cms.pool2;
 
+import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,10 +8,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Properties;
 
 public class Client {
-    private Socket socket;
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
+    private Socket socket;
+    private static final Properties prop = PropertyUtil.getInterfaceProp("cms");
+    final String encoding = prop.getProperty("Server.ENCODING");
 
     public void startClient(String host, int port) {
         DataInputStream dis = null;
@@ -24,13 +28,13 @@ public class Client {
 
             // 데이터 송신
             String message = "클라이언트에서 보내는 메시지입니다.";
-            byte[] sendData = message.getBytes("UTF-8");
+            byte[] sendData = message.getBytes(encoding);
             sendData(dos, sendData);
             logger.debug("서버에게 메시지를 보냈습니다.");
 
             // 데이터 수신
             byte[] receivedData = receiveData(dis);
-            String response = new String(receivedData, "UTF-8");
+            String response = new String(receivedData, encoding);
             logger.debug("서버로부터 받은 응답: {}", response);
 
         } catch (IOException e) {

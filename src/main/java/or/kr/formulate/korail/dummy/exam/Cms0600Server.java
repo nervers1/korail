@@ -1,6 +1,5 @@
-package or.kr.formulate.korail.util.cms;
+package or.kr.formulate.korail.dummy.exam;
 
-import or.kr.formulate.korail.dummy.ExecutorExam1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class Cms0600Server {
     private static final Logger logger = LoggerFactory.getLogger(Cms0600Server.class);

@@ -1,4 +1,4 @@
-package or.kr.formulate.korail.util.cms;
+package or.kr.formulate.korail.dummy.exam;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static or.kr.formulate.korail.util.cms.CmsClient.socketChannel;
+import static or.kr.formulate.korail.dummy.exam.CmsClient.socketChannel;
 
 public class CmsServer2 {
     private static final Logger logger = LoggerFactory.getLogger(CmsServer1.class);

@@ -1,4 +1,4 @@
-package or.kr.formulate.korail.util.cms;
+package or.kr.formulate.korail.dummy.exam;
 
 
 import org.slf4j.Logger;

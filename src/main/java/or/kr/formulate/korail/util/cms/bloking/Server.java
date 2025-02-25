@@ -1,4 +1,4 @@
-package or.kr.formulate.korail.dummy.chat.bloking;
+package or.kr.formulate.korail.util.cms.bloking;
 
 import or.kr.formulate.korail.util.CmsUtil;
 import or.kr.formulate.korail.util.PropertyUtil;

@@ -21,8 +21,8 @@ public class TestTCPClient {
         String rootPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource("")).getPath();
         System.out.println("rootPath ---> " + rootPath);
 
-        String resource = "test.properties";
-        String ifProperties = "interfaceId.properties";
+        String resource = "props/meta/test.properties";
+        String ifProperties = "props/meta/interfaceId.properties";
 
         String appConfigPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(resource)).getPath();
         String ifConfigPath = Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResource(ifProperties)).getPath();
@@ -59,10 +59,10 @@ public class TestTCPClient {
         }
 
         System.out.println("----------------------[ResourceBundle]----------------------------------");
-        ResourceBundle rb = ResourceBundle.getBundle("test");
-        System.out.println("ResourceBundle.str1 : " + rb.getString("str1"));
-        System.out.println("ResourceBundle.key1 : " + rb.getString("key1"));
-        System.out.println("ResourceBundle.test.type : " + rb.getString("test.type"));
+        ResourceBundle rb = ResourceBundle.getBundle("application");
+        System.out.println("ResourceBundle > spring.application.name : " + rb.getString("spring.application.name"));
+        System.out.println("ResourceBundle > integration.tcp.client.port : " + rb.getString("integration.tcp.client.port"));
+        System.out.println("ResourceBundle > integration.tcp.client.connection.timeout : " + rb.getString("integration.tcp.client.connection.timeout"));
         System.out.println("--------------------------------------------------------");
 
 

@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -74,38 +76,6 @@ public class CmsUtil {
         return temp;
     }
 
-    public static byte[] make0600(Map<String, Object> map, String type) {
-        Map<String, Object> msgMap = test0600();
-        Map<String, Object> layout = PropertyUtil.getMetaProp("cms");
-        List<Map<String, Object>> fields = PropertyUtil.getFieldList(layout, "IF0600");
-        fields.forEach(f -> {
-            Map<String, Object> field = f;
-            logger.debug("{}", field);
-            int idx = (int) field.get("idx");
-        });
-
-        return null;
-    }
-
-    public static Map<String, Object> test0600() {
-        Map<String, Object> info = new LinkedHashMap<>(); // 입력 순서를 보장하기 위해 LinkedHashMap 사용
-//        info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
-        info.put("workDivCd", "FTE");             // 업무구분코드, 기관과 도로공사간("FTE")
-        info.put("orgCd", "10100110");            // 기관코드(국민은행)
-        info.put("msgKindCd", "0600");            // 전문종별코드 "0600"
-        info.put("transactionDivCd", "R");        // 거래구분코드: 도로공사 송신 : S, 도로공사 수신: R
-        info.put("txFlag", "E");                  // 송수신Flag: 도로공사 전문 발생: 'C', 기관에서 전문 발생: 'E'
-        info.put("fileNm", "   ");                // 파일명: 0600/001, 0600/004 전문은 SPACE 처리한다.
-        info.put("responseCd", "000");            // 응답코드: 전문처리결과, 요구전문에는 "000" Set
-        info.put("txDateTime", "0211163412");      // 전문전송일시: 10자리 (MMDDhhmmss)
-        info.put("mngCd", "001");                 // 업무관리정보: 업무개시(001), 파일송수신완료(002,송신할파일존재), 파일송수신완료(003, 송신할 파일없음), 업무종료(004)
-        info.put("senderNm", "김병기");            // 송신자명
-        info.put("senderEnc", "1111");            // 송신자암호
-
-        return info;
-
-    }
-
 
     // 요청 전문을 생성한다.
     public static String makeMessage(String interfaceId, Map<String, Object> data) {
@@ -115,8 +85,6 @@ public class CmsUtil {
         List<Map<String, Object>> fields = PropertyUtil.getFieldList(cms, interfaceId);
         StringBuffer sb = new StringBuffer();
 
-
-        logger.debug(cms.toString());
         AtomicInteger totalBytes = new AtomicInteger();
         AtomicReference<Map<String, Object>> lenField = new AtomicReference<>();
         fields.forEach(field -> {
@@ -166,5 +134,90 @@ public class CmsUtil {
         logger.debug("Total bytes: {}", total);
         sb.insert(0, lengthField);
         return sb.toString();
+    }
+
+    /**
+     * 전문 공통부 파싱
+     *
+     * @param data        입력 바이트 byte[]
+     * @param interfaceId 인터페이스아이디
+     * @return 파싱 공통부 Map
+     */
+    public static Map<String, String> parseMessageCommon(byte[] data, String interfaceId) {
+        Map<String, String> result = new LinkedHashMap<>();
+        final Properties prop = PropertyUtil.getInterfaceProp("cms");
+        final String encoding = prop.getProperty("Server.ENCODING");
+        Map<String, Object> cms = PropertyUtil.getMetaProp("cms");
+        List<Map<String, Object>> fields = PropertyUtil.getFieldList(cms, interfaceId);
+        logger.debug("Fields Length: {}", fields.size());
+        AtomicInteger fieldOffset = new AtomicInteger(0);
+
+        fields.forEach(field -> {
+            logger.debug("field: {}", field);
+            String type = (String) field.get("type");
+            int offset = (int) field.get("offset");
+            int length = (int) field.get("length");
+            String key = (String) field.get("name");
+            logger.debug("type: {}, offset: {}, len: {}, key: {}", type, offset, length, key);
+
+            byte[] temp = new byte[length];
+            int offSet = fieldOffset.getAndAdd(length);
+            System.arraycopy(data, offSet, temp, 0, length);
+            try {
+                result.put(key, new String(temp, encoding));
+            } catch (UnsupportedEncodingException e) {
+                throw new EAIException(ResponseCode.RES_800.getDesc(), ResponseCode.RES_800, e);
+            }
+        });
+
+        return result;
+    }
+
+
+    public static Map<String, Object> test0600() {
+        ZonedDateTime zdateTime = ZonedDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddHHmmss");
+        String txDateTime = zdateTime.format(formatter);
+
+        Map<String, Object> info = new LinkedHashMap<>(); // 입력 순서를 보장하기 위해 LinkedHashMap 사용
+//        info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
+        info.put("workDivCd", "FTE");             // 업무구분코드, 기관과 도로공사간("FTE")
+        info.put("orgCd", "10100110");            // 기관코드(국민은행)
+        info.put("msgKindCd", "0600");            // 전문종별코드 "0600"
+        info.put("transactionDivCd", "R");        // 거래구분코드: 도로공사 송신 : S, 도로공사 수신: R
+        info.put("txFlag", "E");                  // 송수신Flag: 도로공사 전문 발생: 'C', 기관에서 전문 발생: 'E'
+        info.put("fileNm", "   ");                // 파일명: 0600/001, 0600/004 전문은 SPACE 처리한다.
+        info.put("responseCd", "000");            // 응답코드: 전문처리결과, 요구전문에는 "000" Set
+        info.put("txDateTime", txDateTime);      // 전문전송일시: 10자리 (MMDDhhmmss)
+        info.put("mngCd", "001");                 // 업무관리정보: 업무개시(001), 파일송수신완료(002,송신할파일존재), 파일송수신완료(003, 송신할 파일없음), 업무종료(004)
+        info.put("senderNm", "김병기");            // 송신자명
+        info.put("senderEnc", "1111");            // 송신자암호
+
+        return info;
+
+    }
+
+
+    public static Map<String, Object> test0610() {
+        ZonedDateTime zdateTime = ZonedDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddHHmmss");
+        String txDateTime = zdateTime.format(formatter);
+
+        Map<String, Object> info = new LinkedHashMap<>(); // 입력 순서를 보장하기 위해 LinkedHashMap 사용
+//        info.put("transactionCd", "123456789");   // TRANSACTION CODE(9)
+        info.put("workDivCd", "FTE");             // 업무구분코드, 기관과 도로공사간("FTE")
+        info.put("orgCd", "10100110");            // 기관코드(국민은행)
+        info.put("msgKindCd", "0610");            // 전문종별코드 "0610"
+        info.put("transactionDivCd", "S");        // 거래구분코드: 도로공사 송신 : S, 도로공사 수신: R
+        info.put("txFlag", "C");                  // 송수신Flag: 도로공사 전문 발생: 'C', 기관에서 전문 발생: 'E'
+        info.put("fileNm", "   ");                // 파일명: 0600/001, 0600/004 전문은 SPACE 처리한다.
+        info.put("responseCd", "000");            // 응답코드: 전문처리결과, 요구전문에는 "000" Set
+        info.put("txDateTime", txDateTime);      // 전문전송일시: 10자리 (MMDDhhmmss)
+        info.put("mngCd", "001");                 // 업무관리정보: 업무개시(001), 파일송수신완료(002,송신할파일존재), 파일송수신완료(003, 송신할 파일없음), 업무종료(004)
+        info.put("senderNm", "김병기");            // 송신자명
+        info.put("senderEnc", "1111");            // 송신자암호
+
+        return info;
+
     }
 }

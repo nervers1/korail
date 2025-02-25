@@ -1,5 +1,6 @@
 package or.kr.formulate.korail.dummy.chat.bloking;
 
+import or.kr.formulate.korail.util.CmsUtil;
 import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -86,49 +88,92 @@ class ClientThread extends Thread {
         final int bytesLen = Integer.parseInt(prop.getProperty("Server.BYTES"));
         final String encoding = prop.getProperty("Server.ENCODING");
 
-/*
-        try (InputStream is = socket.getInputStream();
-             ObjectInputStream ois = new ObjectInputStream(is)) {
-            while (true) {
-                byte[] dataBytes = (byte[])ois.readObject();
-                int length = dataBytes.length;
-
-                String data = new String(dataBytes, encoding);
-                logger.debug("Thread {} length: {}>  {}", id, length, data);
-                *//*
-                InputStream IS = socket.getInputStream();
-                byte[] bt = new byte[bytesLen];
-                int size = IS.read(bt);
-
-                String output = new String(bt, 0, size, encoding);
-                logger.debug("Thread {} >  {}", id, output);*//*
-            }*/
         try (InputStream is = socket.getInputStream();
              ObjectInputStream ois = new ObjectInputStream(is);
              OutputStream os = socket.getOutputStream();
-             ObjectOutputStream oos = new ObjectOutputStream(os)) {
-
-            while (true) {
-                byte[] data = (byte[])ois.readObject();
-                int length = data.length;
-
-                String dataStr = new String(data, encoding);
-                logger.debug("Thread {} length: {}>  {}", id, length, dataStr);
-
-                // 읽은 데이터 파싱
-                final byte[] buffer = new byte[4];
-                System.arraycopy(data, 0, buffer, 0, buffer.length);
-                logger.debug("Thread {} buffer: {}", id, new String(buffer));
+             ObjectOutputStream oos = new ObjectOutputStream(os);) {
 
 
-                InputStream IS = socket.getInputStream();
-                byte[] bt = new byte[bytesLen];
-                int size = IS.read(bt);
+            // 데이터 수신
+            byte[] data = (byte[]) ois.readObject();
+            // 수신 데이터 길이(byte)
+            int length = data.length;
 
-                String output = new String(bt, 0, size, encoding);
-                logger.debug("Thread {} >  {}", id, output);
+            //
+            String dataStr = new String(data, encoding);
+            logger.debug("Thread {} length: {}>  {}", id, length, dataStr);
+
+            // 파싱을 위한 객체 생성 : IF0600
+            Map<String, String> ifcomm = CmsUtil.parseMessageCommon(data, "IF0600");
+            logger.debug("common {}", ifcomm);
+
+            String workDivCd = ifcomm.get("workDivCd");
+            String orgCd = ifcomm.get("orgCd");
+            String msgKindCd = ifcomm.get("msgKindCd");
+            String transactionDivCd = ifcomm.get("transactionDivCd");
+            String txFlag = ifcomm.get("txFlag");
+            String responseCd = ifcomm.get("responseCd");
+            String mngCd = ifcomm.get("mngCd");
+
+            logger.debug("{} 전문수신", msgKindCd);
+
+
+            switch (msgKindCd) {
+                case "0600":
+                    logger.debug("[{}/{}] 전문 수신 완료", msgKindCd, mngCd);
+                    if ("001".equals(mngCd)) {
+                        // 업무개시
+                        logger.debug("업무개시");
+
+                        // 업무개시 응답전문 생성
+
+                        // 임시 전문정보를 얻어온다.
+                        Map<String, Object> responseMap = CmsUtil.test0610();
+                        // 요청전문을 생성한다.
+                        String message = CmsUtil.makeMessage("IF0610", responseMap);
+                        logger.debug("[{}]", message);
+
+                        // 소켓에 데이터를 실어서 서버에 요청한다.
+                        byte[] arrayStream = message.getBytes(encoding);
+                        oos.writeObject(arrayStream);
+
+
+
+                    } else if ("002".equals(mngCd)) {
+                        // 다음 파일 존재
+                        logger.debug("다음 파일 존재");
+                    } else if ("003".equals(mngCd)) {
+                        // 다음 파일 없음
+                        logger.debug("다음 파일 없음");
+                    } else if ("004".equals(mngCd)) {
+                        // 업무종료
+                        logger.debug("업무종료");
+                    }
+
+                    break;
+                case "0630": // 파일정보 수신 요청
+                    logger.debug("{} 전문 수신 완료.", msgKindCd);
+                    break;
+                case "0320": // DATA 송신
+                    logger.debug("{} 전문 수신 완료.", msgKindCd);
+                    break;
+                case "0620": // 결번확인요청
+                    logger.debug("{} 전문 수신 완료.", msgKindCd);
+                    break;
+                case "0310": // 결번 DATA 송신
+                    logger.debug("{} 전문 수신 완료.", msgKindCd);
+                    break;
+                default:
+                    break;
+
             }
+
+
+
+//            ois.close();
+//            oos.close();
         } catch (IOException e) {
+            e.printStackTrace();
             logger.debug("Thread {} is closed. ", id);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);

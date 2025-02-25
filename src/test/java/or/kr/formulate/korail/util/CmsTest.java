@@ -22,12 +22,6 @@ public class CmsTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CmsTest.class);
 
-    @Test
-    public void test() {
-        Map<String, Object> dataMap = CmsUtil.test0600();
-        CmsUtil.make0600(dataMap, "0600");
-    }
-
 
 
     @Test

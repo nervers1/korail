@@ -1,5 +1,6 @@
 package or.kr.formulate.korail.util.cms.pool2;
 
+import or.kr.formulate.korail.util.CmsUtil;
 import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
 import java.util.Properties;
 
 public class Client {
@@ -26,8 +28,15 @@ public class Client {
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
 
+            // 요청 데이터 생섣
+
+            // 임시 전문정보를 얻어온다.
+            Map<String, Object> data = CmsUtil.test0600();
+            // 요청전문을 생성한다.
+            String message = CmsUtil.makeMessage("IF0600", data);
+
             // 데이터 송신
-            String message = "클라이언트에서 보내는 메시지입니다.";
+//            String message = "클라이언트에서 보내는 메시지입니다.";
             byte[] sendData = message.getBytes(encoding);
             sendData(dos, sendData);
             logger.debug("서버에게 메시지를 보냈습니다.");

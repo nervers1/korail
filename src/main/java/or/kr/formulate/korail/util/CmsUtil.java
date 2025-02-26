@@ -150,7 +150,7 @@ public class CmsUtil {
         Map<String, Object> cms = PropertyUtil.getMetaProp("cms");
         List<Map<String, Object>> fields = PropertyUtil.getFieldList(cms, interfaceId);
         logger.debug("Fields Length: {}", fields.size());
-        AtomicInteger fieldOffset = new AtomicInteger(0);
+        AtomicInteger fieldOffset = ("IFCOMM".equals(interfaceId)) ? new AtomicInteger(4) : new AtomicInteger(0);
 
         fields.forEach(field -> {
             logger.debug("field: {}", field);

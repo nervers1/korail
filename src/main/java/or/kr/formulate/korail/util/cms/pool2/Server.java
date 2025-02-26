@@ -1,6 +1,7 @@
 package or.kr.formulate.korail.util.cms.pool2;
 
 
+import or.kr.formulate.korail.util.CmsUtil;
 import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -23,7 +23,7 @@ public class Server {
     private static final Properties prop = PropertyUtil.getInterfaceProp("cms");
     final String encoding = prop.getProperty("Server.ENCODING");
     private ServerSocket serverSocket;
-    private ExecutorService executorService;
+    private ExecutorService executor;
 
     // 서버 시작 메소드
     public void startServer(int port, int threadPoolSize) {
@@ -32,7 +32,7 @@ public class Server {
             logger.debug("서버가 포트 {}에서 시작되었습니다.", port);
 
             // 스레드 풀 생성
-            executorService = Executors.newFixedThreadPool(threadPoolSize);
+            executor = Executors.newFixedThreadPool(threadPoolSize);
 
             while (true) {
                 // 클라이언트 연결 대기
@@ -40,7 +40,7 @@ public class Server {
                 logger.debug("클라이언트가 연결되었습니다: {}", clientSocket.getInetAddress());
 
                 // 클라이언트 처리를 위한 작업을 스레드 풀에 제출
-                executorService.submit(() -> handleClient(clientSocket));
+                executor.submit(() -> handleClient(clientSocket));
             }
         } catch (IOException e) {
             logger.error("서버 실행 중 오류 발생", e);
@@ -58,10 +58,13 @@ public class Server {
             dis = new DataInputStream(socket.getInputStream());
             dos = new DataOutputStream(socket.getOutputStream());
 
+
             // 데이터 수신
             byte[] receivedData = receiveData(dis);
+
             String message = new String(receivedData, encoding);
             logger.debug("클라이언트로부터 받은 메시지: {}", message);
+
 
             // 수신 데이터 파싱(수신 데이터를 파싱해서 응답 전문을 생성하고 byte[] 형태로 반환
             byte[] result = parseRequest(receivedData);
@@ -82,10 +85,48 @@ public class Server {
         }
     }
 
+
+    // 전문종별코드
+    private String parseMessageKindCode(byte[] receivedData) {
+        // 파싱을 위한 객체 생성 : IF0600
+        Map<String, String> ifcomm = CmsUtil.parseMessageCommon(receivedData, "IFCOMM");
+        return ifcomm.get("msgKindCd");
+    }
+
+    // 업무관리정보
+    private String parseMngCode(byte[] receivedData) {
+        Map<String, String> if0600 = CmsUtil.parseMessageCommon(receivedData, "IF0600");
+        return if0600.get("mngCd");
+    }
+
     private byte[] parseRequest(byte[] receivedData) {
+
+        // 2. 수신 데이터를 파싱하여 전문종별코드(msgKindCd), 업무관리정보(mngCd) 추출
+        String msgKindCd = parseMessageKindCode(receivedData); // 예: "0600"
+        switch (msgKindCd) {
+            case "0600":
+                String mngCd = parseMngCode(receivedData); // 예: "001"
+                if ("001".equals(mngCd)) {
+                    // 업무개시
+
+                } else if ("002".equals(mngCd)) {
+                    // 파일송수신 완료( 송신할 파일 존재 )
+                } else if ("003".equals(mngCd)) {
+                    // 파일송수신 완료( 송신할 파일 없음 )
+                } else if ("004".equals(mngCd)) {
+                    // 업무종료
+
+                }
+                break;
+            case "0630":
+                break;
+            default:
+        }
+
+
         // 입력데이터 파싱로직
         Map<String, String> requestMap = new LinkedHashMap<>();
-        // 응답전문 매핑 및 응답전문 생성
+        // byte[] 형태의 응답전문 생성
         byte[] result = new byte[receivedData.length];
         return result;
     }
@@ -120,14 +161,14 @@ public class Server {
     // 서버 중지 메소드
     public void stopServer() {
         try {
-            if (executorService != null && !executorService.isShutdown()) {
-                executorService.shutdown(); // 새로운 작업 제출을 막음
+            if (executor != null && !executor.isShutdown()) {
+                executor.shutdown(); // 새로운 작업 제출을 막음
                 try {
-                    if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-                        executorService.shutdownNow(); // 실행 중인 작업을 중단시킴
+                    if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                        executor.shutdownNow(); // 실행 중인 작업을 중단시킴
                     }
                 } catch (InterruptedException e) {
-                    executorService.shutdownNow();
+                    executor.shutdownNow();
                 }
             }
             if (serverSocket != null && !serverSocket.isClosed()) {

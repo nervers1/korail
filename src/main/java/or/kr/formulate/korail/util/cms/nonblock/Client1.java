@@ -30,7 +30,7 @@ public class Client1 {
                  DataInputStream input = new DataInputStream(socket.getInputStream())) {
 
                 // 1. 데이터 생성 및 송신
-                byte[] requestData = createRequestData("Hello from Client1");
+                byte[] requestData = createRequestData("This Message is very important data from Client1");
                 boolean isSent = sendDataWithRetry(socket, output, requestData, RETRY_COUNT);
 
                 if (!isSent) {

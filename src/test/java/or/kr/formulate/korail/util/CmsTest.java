@@ -4,6 +4,8 @@ import or.kr.formulate.korail.exception.EAIException;
 import or.kr.formulate.korail.dummy.exam.CmsExecutor;
 import or.kr.formulate.korail.dummy.exam.CmsProcess;
 import or.kr.formulate.korail.dummy.exam.CmsServer1;
+import or.kr.formulate.korail.util.cms.pool2.Client0320;
+import or.kr.formulate.korail.util.cms.pool2.Server0320;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +85,26 @@ public class CmsTest {
         } catch (EAIException e) {
             logger.info("msg : {} : code: {}", e.getMessage(), e.getCode());
         }
+
+    }
+
+    @Test
+    public void executeServer0320() throws IOException {
+        Server0320 server = new Server0320();
+        server.start();
+    }
+
+    @Test
+    public void executeClient0320() throws IOException {
+        Client0320 client = new Client0320();
+        client.start("static/cms.file.txt");
+
+    }
+
+    @Test
+    public void startServer() throws IOException {
+        or.kr.formulate.korail.util.cms.nonblock.Server server = new or.kr.formulate.korail.util.cms.nonblock.Server();
+        server.start();
 
     }
 }

@@ -1,5 +1,8 @@
 package or.kr.formulate.korail.util.cms.pool2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,15 +11,20 @@ import java.nio.charset.StandardCharsets;
 
 public class Server0320 {
 
+    private static final Logger logger = LoggerFactory.getLogger(Server0320.class);
+
     private static final int BATCH_SIZE = 100;
-    private static final Charset UTF_8 = StandardCharsets.UTF_8;
+    private static final Charset UTF_8 = Charset.forName("EUC-KR");
     private static final int serverPort = 7777;
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
+            logger.debug("start");
             while (true) {
                 Socket clientSocket = serverSocket.accept();
+                logger.debug("Connected {}, From {}", clientSocket.getLocalPort(), clientSocket.getRemoteSocketAddress().toString());
                 handleClient(clientSocket);
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -27,6 +35,7 @@ public class Server0320 {
         try (DataInputStream dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
              DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()))) {
 
+            logger.debug("Handling client request...");
             int receivedRecordCount = 0;
 
             while (true) {

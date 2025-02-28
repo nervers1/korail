@@ -51,33 +51,24 @@ public class Server {
 
             logger.debug("Preparing to handle client: {}", socket.getRemoteSocketAddress());
 
-            // 1. 데이터 수신
+            // 1. 소켓 연결상태 확인
             if (!socket.isConnected()) {
                 logger.error("Socket is not connected. Exiting client handler.");
                 return;
             }
 
-            int length = input.readInt();
-            if (length < 0) {
-                logger.error("Invalid data length received: {}", length);
-                return;
-            }
-
-            byte[] request = new byte[length];
-            input.readFully(request);
+            // 2. 데이터 수신
+            byte[] request = readRequestData(input);
+            if (request == null) return;
             logger.info("Received data from client: {}", new String(request));
 
-            // 2. 클라이언트 작업 처리
+            // 3. 클라이언트 작업 처리
             String parsedRequest = new String(request);
             String responseMessage = "Processed: " + parsedRequest;
             byte[] response = responseMessage.getBytes();
 
-            // 3. 응답 데이터 전송
-            synchronized (output) {  // 스트림 동기화를 추가
-                output.writeInt(response.length);
-                output.write(response);
-                output.flush();
-            }
+            // 4. 응답 데이터 전송
+            sendResponseData(output, response);
 
             logger.info("Response sent to client: {}", responseMessage);
 
@@ -91,6 +82,26 @@ public class Server {
                 logger.error("Error closing client socket: ", e);
             }
         }
+    }
+
+    private static void sendResponseData(DataOutputStream output, byte[] response) throws IOException {
+        synchronized (output) {  // 스트림 동기화를 추가
+            output.writeInt(response.length);
+            output.write(response);
+            output.flush();
+        }
+    }
+
+    private static byte[] readRequestData(DataInputStream input) throws IOException {
+        int length = input.readInt();
+        if (length < 0) {
+            logger.error("Invalid data length received: {}", length);
+            return null;
+        }
+
+        byte[] request = new byte[length];
+        input.readFully(request);
+        return request;
     }
 
     public static void main(String[] args) {

@@ -1,5 +1,6 @@
 package or.kr.formulate.korail.util.cms.nonblock;
 
+import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.DataInputStream;
@@ -7,12 +8,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
+    private static final Properties prop = PropertyUtil.getInterfaceProp("cms");
+    private final String encoding = prop.getProperty("Server.ENCODING");
     private static final int PORT = 8080;
     private static final int THREAD_POOL_SIZE = 10;
 

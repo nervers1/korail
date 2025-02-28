@@ -1,5 +1,6 @@
 package or.kr.formulate.korail.util.cms.nonblock;
 
+import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,15 +8,23 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.Properties;
 
 public class Client1 {
     private static final Logger logger = LoggerFactory.getLogger(Client1.class);
+    private static final Properties prop = PropertyUtil.getInterfaceProp("cms");
+    private static final String encoding = prop.getProperty("Server.ENCODING");
 
     // 서버 연결 설정
-    private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 8080;
+    private static String SERVER_ADDRESS = "localhost";
+    private static int SERVER_PORT = 7777;
     private static final int TIMEOUT = 30000;
     private static final int RETRY_COUNT = 3;
+
+    public Client1(String host, int port) {
+        SERVER_ADDRESS = host;
+        SERVER_PORT = port;
+    }
 
     public static void main(String[] args) {
 
@@ -62,7 +71,7 @@ public class Client1 {
 
     private static byte[] createRequestData(String message) {
         try {
-            return message.getBytes("EUC-KR");
+            return message.getBytes(encoding);
         } catch (UnsupportedEncodingException e) {
             logger.error("인코딩 오류 발생: {}", e.getMessage());
             return new byte[0];
@@ -106,7 +115,7 @@ public class Client1 {
         output.writeInt(data.length);
         output.write(data);
         output.flush();
-        logger.debug("서버로 데이터 송신 완료: {}", new String(data, "EUC-KR"));
+        logger.debug("서버로 데이터 송신 완료: {}", new String(data, encoding));
     }
 
     private static byte[] receiveData(DataInputStream input) throws IOException {
@@ -123,7 +132,7 @@ public class Client1 {
 
     private static String parseResponse(byte[] response) {
         try {
-            return new String(response, "EUC-KR");
+            return new String(response, encoding);
         } catch (UnsupportedEncodingException e) {
             logger.error("응답 파싱 중 인코딩 오류 발생: {}", e.getMessage());
             return "";

@@ -5,17 +5,28 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
+import java.util.Properties;
 import java.util.concurrent.*;
+
+import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AsyncServer {
     private static final Logger logger = LoggerFactory.getLogger(AsyncServer.class);
-    private static final int PORT = 8080;
+    private static final Properties prop = PropertyUtil.getInterfaceProp("cms");
+    private final String encoding = prop.getProperty("Server.ENCODING");
+    private static int PORT = 8080;
     private static final int TIMEOUT_SECONDS = 30;
+    private static int THREAD_POOL_SIZE = 10;
+
+    public AsyncServer(int port, int threadCount) {
+        PORT = port;
+        THREAD_POOL_SIZE = threadCount;
+    }
 
     private AsynchronousServerSocketChannel serverChannel;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
     public void start() {
         try {
@@ -152,7 +163,7 @@ public class AsyncServer {
                     dataBuffer.get(requestData);
                     String message;
                     try {
-                        message = new String(requestData, "EUC-KR");
+                        message = new String(requestData, encoding);
                     } catch (UnsupportedEncodingException e) {
                         logger.error("Unsupported Encoding: ", e);
                         closeClient(clientChannel);
@@ -182,7 +193,7 @@ public class AsyncServer {
     private void sendResponse(AsynchronousSocketChannel clientChannel, String responseMessage) {
         byte[] responseData;
         try {
-            responseData = responseMessage.getBytes("EUC-KR");
+            responseData = responseMessage.getBytes(encoding);
         } catch (UnsupportedEncodingException e) {
             logger.error("Unsupported Encoding: ", e);
             closeClient(clientChannel);
@@ -259,7 +270,7 @@ public class AsyncServer {
     }
 
     public static void main(String[] args) {
-        AsyncServer server = new AsyncServer();
+        AsyncServer server = new AsyncServer(7777, 10);
         server.start();
     }
 }

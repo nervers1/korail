@@ -23,7 +23,7 @@ public class MarkdownController {
 
         String markdownValueFormLocal = CommonUtil.getMarkdownValueFormLocal(page);
 
-        logger.info("---> {}", markdownValueFormLocal);
+        logger.debug("---> {}", markdownValueFormLocal);
         Parser parser = Parser.builder().build();
         Node document = parser.parse(markdownValueFormLocal);
         HtmlRenderer renderer = HtmlRenderer.builder().build();

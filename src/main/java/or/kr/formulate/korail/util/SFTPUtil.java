@@ -57,7 +57,7 @@ public class SFTPUtil {
             session.setTimeout(timeout); // 타임아웃 설정
 
             if (logger.isInfoEnabled()) {
-                logger.info("Connecting to " + ip + ":" + port);
+                logger.debug("Connecting to " + ip + ":" + port);
             }
 
             session.connect(); // 접속

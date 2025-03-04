@@ -39,9 +39,9 @@ public class CmsTest {
         future.complete("Hello World");
 
         String result = future.join();
-        logger.info("result: {}", result);
+        logger.debug("result: {}", result);
         String result2 = future.get(timeout, timeUnit); // 타임아웃 적용
-        logger.info("result2: {}", result2);
+        logger.debug("result2: {}", result2);
 
     }
 
@@ -61,9 +61,9 @@ public class CmsTest {
         List<Map<String, Object>> list = new ArrayList<>();
         list.add(map);
         List<byte[]> bytesList = CmsUtil.getBytesList(list, "UTF-8");
-        logger.info("bytesList: {}", bytesList);
+        logger.debug("bytesList: {}", bytesList);
         byte[] totalBytes = CmsUtil.getTotalBytes(bytesList);
-        logger.info("totalBytes: [{}]", new String(totalBytes));
+        logger.debug("totalBytes: [{}]", new String(totalBytes));
 
         List<Map<String, Object>> listTemp = new ArrayList<>();
         listTemp.add(CmsUtil.test0600());
@@ -72,7 +72,7 @@ public class CmsTest {
 
         byte[] tx0600 = CmsUtil.getTotalBytes(bytesList1);
 
-        logger.info("tx0600: [{}]", new String(tx0600));
+        logger.debug("tx0600: [{}]", new String(tx0600));
 
     }
 
@@ -83,7 +83,7 @@ public class CmsTest {
 
             CmsExecutor.server("localhost", 9999);
         } catch (EAIException e) {
-            logger.info("msg : {} : code: {}", e.getMessage(), e.getCode());
+            logger.debug("msg : {} : code: {}", e.getMessage(), e.getCode());
         }
 
     }

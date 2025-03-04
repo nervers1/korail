@@ -4,11 +4,15 @@ import or.kr.formulate.korail.util.PropertyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class Client1 {
     private static final Logger logger = LoggerFactory.getLogger(Client1.class);
@@ -99,7 +103,8 @@ public class Client1 {
                 }
                 // 재시도 전에 약간의 대기 시간 추가
                 try {
-                    Thread.sleep(1000);
+//                    Thread.sleep(1000);
+                    TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException interruptedException) {
                     Thread.currentThread().interrupt();
                     logger.error("재시도 대기 중 인터럽트 발생.");

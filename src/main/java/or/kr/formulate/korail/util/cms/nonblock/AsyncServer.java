@@ -32,7 +32,7 @@ public class AsyncServer {
         try {
             serverChannel = AsynchronousServerSocketChannel.open();
             serverChannel.bind(new InetSocketAddress(PORT));
-            logger.info("Asynchronous server started on port: {}", PORT);
+            logger.debug("Asynchronous server started on port: {}", PORT);
 
             acceptClient();
 
@@ -170,7 +170,7 @@ public class AsyncServer {
                         return;
                     }
 
-                    logger.info("Received data from client: {}", message);
+                    logger.debug("Received data from client: {}", message);
 
                     // 응답 생성
                     String responseMessage = "Processed: " + message;
@@ -224,7 +224,7 @@ public class AsyncServer {
                                 writeData(clientChannel, lengthBuffer, dataBuffer);
                             } else {
                                 // 응답 전송 완료
-                                logger.info("Response sent to client.");
+                                logger.debug("Response sent to client.");
                                 closeClient(clientChannel);
                             }
                         }
@@ -250,7 +250,7 @@ public class AsyncServer {
         try {
             if (clientChannel.isOpen()) {
                 clientChannel.close();
-                logger.info("Client disconnected.");
+                logger.debug("Client disconnected.");
             }
         } catch (IOException e) {
             logger.error("Error closing client channel: ", e);
@@ -261,7 +261,7 @@ public class AsyncServer {
         try {
             if (serverChannel != null && serverChannel.isOpen()) {
                 serverChannel.close();
-                logger.info("Server stopped.");
+                logger.debug("Server stopped.");
             }
             scheduler.shutdownNow();
         } catch (IOException e) {

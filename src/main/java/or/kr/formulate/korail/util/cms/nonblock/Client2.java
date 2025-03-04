@@ -3,17 +3,20 @@ package or.kr.formulate.korail.util.cms.nonblock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
 public class Client2 {
-    private static final Logger logger = LoggerFactory.getLogger(Client1.class);
+    private static final Logger logger = LoggerFactory.getLogger(Client2.class);
 
     // 서버 연결 설정
     private static final String SERVER_ADDRESS = "localhost";
-    private static final int SERVER_PORT = 8080;
+    private static final int SERVER_PORT = 7777;
     private static final int TIMEOUT = 30000;
     private static final int RETRY_COUNT = 3;
 
@@ -30,7 +33,7 @@ public class Client2 {
                  DataInputStream input = new DataInputStream(socket.getInputStream())) {
 
                 // 1. 데이터 생성 및 송신
-                byte[] requestData = createRequestData("This Message is very important data from Client1");
+                byte[] requestData = createRequestData("This Message Data from Client2");
                 boolean isSent = sendDataWithRetry(socket, output, requestData, RETRY_COUNT);
 
                 if (!isSent) {

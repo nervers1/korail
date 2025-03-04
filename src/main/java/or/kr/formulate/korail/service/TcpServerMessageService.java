@@ -11,7 +11,7 @@ public class TcpServerMessageService {
 
     public byte[] processMessage(byte[] message) {
 
-        logger.info("Message: {}", message);
+        logger.debug("Message: {}", message);
         return message;
     }
 }

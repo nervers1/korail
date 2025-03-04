@@ -33,13 +33,13 @@ public class IndexController {
 
     @PostMapping(path = "input")
     public Map<String, Object> input(@RequestBody Map<String, Object> input) {
-        logger.info("{}", input);
+        logger.debug("{}", input);
         return input;
     }
 
     @PostMapping(path = "input2")
     public String input2(@RequestBody Map<String, Object> input) throws JsonProcessingException {
-        logger.info("{}", input);
+        logger.debug("{}", input);
         ObjectMapper objectMapper = new ObjectMapper();
 
 

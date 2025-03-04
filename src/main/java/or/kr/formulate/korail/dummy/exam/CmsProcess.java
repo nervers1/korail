@@ -78,7 +78,7 @@ public class CmsProcess<T extends Runnable> {
     public void invoke() {
 
         createServer(5);
-        logger.info("Starting process");
+        logger.debug("Starting process");
 
         CompletableFuture<Void> future = CompletableFuture.runAsync(this::cmsServer, executor);
 
@@ -91,12 +91,12 @@ public class CmsProcess<T extends Runnable> {
         }
 
 //        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-//            logger.info("CompletableFuture started");
+//            logger.debug("CompletableFuture started");
 //            return "Hello World!";
 //        }, executor);
 
 //        future.thenAccept(res  -> {
-//            logger.info("result: {}", res);
+//            logger.debug("result: {}", res);
 //        });
 //        CmsServer1 svr = new CmsServer1();
 //        CmsClient1 client = new CmsClient1();
@@ -116,7 +116,7 @@ public class CmsProcess<T extends Runnable> {
 //        } catch (ExecutionException e) {
 //            throw new RuntimeException(e);
 //        }
-//        logger.info("response: {}", s);
+//        logger.debug("response: {}", s);
 //
 //        executor.execute(task);
 
@@ -140,8 +140,8 @@ public class CmsProcess<T extends Runnable> {
 
         executor = Executors.newFixedThreadPool(threadCount);
         // Callable Task로 지정된 클래스(: 리턴값 있는 경우) 수행
-        logger.info("ExecutorService started... ");
-        logger.info("Thread count... [{}]", threadCount);
+        logger.debug("ExecutorService started... ");
+        logger.debug("Thread count... [{}]", threadCount);
     }
 
     private void shutdownServer() {
@@ -153,7 +153,7 @@ public class CmsProcess<T extends Runnable> {
         } catch (InterruptedException e) {
             executor.shutdownNow();
         } finally {
-            logger.info("Server submit service shutdown");
+            logger.debug("Server submit service shutdown");
         }
     }
 
@@ -180,30 +180,30 @@ public class CmsProcess<T extends Runnable> {
     }
 
     private <R> void extractStringData(Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
-        logger.info("String Data");
+        logger.debug("String Data");
         String str = (String)future.get(timeout, unit);
-        logger.info("str {}", str);
+        logger.debug("str {}", str);
     }
 
     private <R> void extractMapData(Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
-        logger.info("Map Data");
+        logger.debug("Map Data");
         Map<String, Object> res = (Map<String, Object>)future.get(timeout, unit);
         res.forEach((k, v) -> {
-            logger.info("{} --> {}", k, v.toString());
+            logger.debug("{} --> {}", k, v.toString());
         });
     }
 
     private <R> void extractListData(Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
-        logger.info("List Data");
+        logger.debug("List Data");
         if (future.get() instanceof List) {
             List<?> list = (List<?>)future.get(timeout, unit);
             list.forEach(item -> {
                 if (item instanceof Map) {
                     ((Map) item).forEach((k, v) -> {
-                        logger.info("{} --> {}", k, v.toString());
+                        logger.debug("{} --> {}", k, v.toString());
                     });
                 } else if (item instanceof String) {
-                    logger.info("{}", item);
+                    logger.debug("{}", item);
                 }
             });
         }

@@ -25,7 +25,7 @@ public class TimeoutExam<T> {
     }
 
     public void invoke() {
-        logger.info("Max cores : {}", maxCore);
+        logger.debug("Max cores : {}", maxCore);
 
         createServer();
 
@@ -42,7 +42,7 @@ public class TimeoutExam<T> {
 
         executor = Executors.newFixedThreadPool(5);
         // Callable Task로 지정된 클래스(: 리턴값 있는 경우) 수행
-        logger.info("ExecutorService started... ");
+        logger.debug("ExecutorService started... ");
     }
 
     private void executeTask(T task) {
@@ -55,7 +55,7 @@ public class TimeoutExam<T> {
     }
 
     private void getResponse(T t) {
-        logger.info("checkResponse - received count {}",response.size());
+        logger.debug("checkResponse - received count {}",response.size());
         if (!response.isEmpty()) {
             response.forEach(future -> {
                 try {
@@ -66,11 +66,11 @@ public class TimeoutExam<T> {
                     logger.warn("TimeoutException!",e);
                     if (getRetryCount() < 3) {
                         increaseRetryCount();
-                        logger.info("Retry count : {}", getRetryCount());
+                        logger.debug("Retry count : {}", getRetryCount());
                         executeTask(t);
                         getResponse(t);
                     } else {
-                        logger.info("else Retry count : {}", getRetryCount());
+                        logger.debug("else Retry count : {}", getRetryCount());
                         shutdownServer();
                     }
                 } catch (ExecutionException e) {
@@ -90,7 +90,7 @@ public class TimeoutExam<T> {
         } catch (InterruptedException e) {
             executor.shutdownNow();
         } finally {
-            logger.info("Server submit service shutdown");
+            logger.debug("Server submit service shutdown");
         }
     }
 
@@ -115,30 +115,30 @@ public class TimeoutExam<T> {
     }
 
     private <R> void extractStringData(Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
-        logger.info("String Data");
+        logger.debug("String Data");
         String str = (String)future.get(timeout, unit);
-        logger.info("str {}", str);
+        logger.debug("str {}", str);
     }
 
     private <R> void extractMapData(Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
-        logger.info("Map Data");
+        logger.debug("Map Data");
         Map<String, Object> res = (Map<String, Object>)future.get(timeout, unit);
         res.forEach((k, v) -> {
-            logger.info("{} --> {}", k, v.toString());
+            logger.debug("{} --> {}", k, v.toString());
         });
     }
 
     private <R> void extractListData(Future<R> future) throws InterruptedException, ExecutionException, TimeoutException {
-        logger.info("List Data");
+        logger.debug("List Data");
         if (future.get() instanceof List) {
             List<?> list = (List<?>)future.get(timeout, unit);
             list.forEach(item -> {
                 if (item instanceof Map) {
                     ((Map) item).keySet().forEach(key -> {
-                        logger.info("{} --> {}", key, item.toString());
+                        logger.debug("{} --> {}", key, item.toString());
                     });
                 } else if (item instanceof String) {
-                    logger.info("{}", item);
+                    logger.debug("{}", item);
                 }
             });
         }
